@@ -41,7 +41,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 				customer.setDob(results.getDate("dob"));
 				customer.setEmail(results.getString("email"));
-				customer.setSsn("*****" + results.getString("ssn").substring(5));
+				customer.setSsn(results.getString("ssn"));
 				customer.setContactNum(results.getString("phone"));
 				customer.setStreetName(results.getString("streetname"));
 				customer.setCity(results.getString("city"));
@@ -59,31 +59,30 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 		return customer;
 	}
-	
+
 	@Override
-	public Customer getCustomerById(int id) throws BusinessException{
+	public Customer getCustomerById(int id) throws BusinessException {
 		Customer customer = null;
 		try (Connection conn = PostgresConnection.getConnection()) {
 
 			String sql = "select firstname, lastname, dob, "
 					+ "email, ssn, phone, streetname, city, zip "
-					+ "from bank_schema.customer  where "
-					+ "customerid = ? ";
+					+ "from bank_schema.customer  where " + "customerid = ? ";
 			PreparedStatement preparedStatement = conn.prepareStatement(sql);
 			preparedStatement.setInt(1, id);
-			
+
 			ResultSet results = preparedStatement.executeQuery();
 
 			if (results.next()) {
 				customer = new Customer();
-				
+
 				customer.setId(id);
 				customer.setfName(results.getString("firstname"));
 				customer.setlName(results.getString("lastname"));
 
 				customer.setDob(results.getDate("dob"));
 				customer.setEmail(results.getString("email"));
-				customer.setSsn("*****" + results.getString("ssn").substring(5));
+				customer.setSsn(results.getString("ssn"));
 				customer.setContactNum(results.getString("phone"));
 				customer.setStreetName(results.getString("streetname"));
 				customer.setCity(results.getString("city"));
@@ -169,6 +168,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 			update = preparedStatement4.executeUpdate();
 
 			conn.commit();
+			conn.close();
 			if (credentialsid == 0 || customerid == 0 || accountid == 0 || update == 0) {
 				throw new BusinessException("Error in inserting new customer.");
 			}
@@ -188,4 +188,33 @@ public class CustomerDAOImpl implements CustomerDAO {
 		return update;
 	}
 
+	@Override
+	public int updateCustomerRecord(Customer updatedCustomer) throws BusinessException {
+
+		int update = 0;
+		try (Connection conn = PostgresConnection.getConnection()) {
+
+			String sql = "update bank_schema.customer "
+					+ "set firstname=?, lastname =?, email=?, phone=?, streetname=?"
+					+ ", city =?, zip=? where customerid = ? ";
+			PreparedStatement preparedStatement = conn.prepareStatement(sql);
+
+			preparedStatement.setString(1, updatedCustomer.getfName());
+			preparedStatement.setString(2, updatedCustomer.getlName());
+			preparedStatement.setString(3, updatedCustomer.getEmail());
+			preparedStatement.setString(4, updatedCustomer.getContactNum());
+			preparedStatement.setString(5, updatedCustomer.getStreetName());
+			preparedStatement.setString(6, updatedCustomer.getCity());
+			preparedStatement.setString(7, updatedCustomer.getZip());
+			preparedStatement.setInt(8, updatedCustomer.getId());
+
+			update = preparedStatement.executeUpdate();
+
+		} catch (ClassNotFoundException | SQLException e) {
+			throw new BusinessException(
+					"E-C04 : Internal Error- Please contact System Administrator" + "\nReason: "
+							+ e.getMessage());
+		}
+		return update;
+	}
 }

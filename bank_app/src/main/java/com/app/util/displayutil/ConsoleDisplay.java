@@ -10,13 +10,13 @@ public class ConsoleDisplay {
 	private ConsoleDisplay() {		
 	}	
 
-	public static void displayHeader(String text, String level) {
+	public static void displayHeader(String text, String userType) {
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < screenWidth; i++) {
 			sb.append("=");
 		}
-		sb.append("\n " + level + " >> " + "JDBC Bank: " + text + "\n");
+		sb.append("\n " + userType + " >> " + "JDBC Bank: " + text + "\n");
 		for (int i = 0; i < screenWidth; i++) {
 			sb.append("=");
 		}

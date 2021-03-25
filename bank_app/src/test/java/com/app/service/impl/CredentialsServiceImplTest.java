@@ -23,9 +23,7 @@ class CredentialsServiceImplTest {
 		
 		cred2 = new Credentials();
 		cred2.setUsername("user99");
-		cred2.setPassword("99");
-		
-		
+		cred2.setPassword("99");		
 	}
 	
 	@Test
@@ -47,5 +45,4 @@ class CredentialsServiceImplTest {
 			e.getStackTrace();
 		}
 	}
-
 }

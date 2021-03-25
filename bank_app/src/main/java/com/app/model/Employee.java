@@ -71,17 +71,4 @@ public class Employee {
 				+ ", contactNum=" + contactNum + ", cr=" + cr + ", privilegeLevel=" + privilegeLevel
 				+ "]";
 	}
-
-	
-	
-
-
-
-
-	
-
-	
-
-	
-
 }

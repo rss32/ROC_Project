@@ -1,6 +1,3 @@
-/*
- * TODO RESOLVE-parts of final source code commented
- */
 
 package com.app.main;
 
@@ -69,7 +66,7 @@ public class BankMain {
 		ConsoleDisplay.displayHeader("Welcome Page", "U");
 		ConsoleDisplay.displayMessage("At JDBC Bank we promise to take care of YOUR money (^_^)");
 		ConsoleDisplay.displayMenu("1. Customer login", "2. Employee login",
-				"3. Create new customer acct", "4. Exit");
+				"3. Create new customer account", "4. Exit");
 		ConsoleDisplay.displayPrompt("Please enter menu selection [1-4]");
 
 		int userOption = 0; // stores number from user input
@@ -208,6 +205,8 @@ public class BankMain {
 			} catch (BusinessException e) {
 				log.warn(e.getMessage());
 			}
+			ConsoleDisplay.displayPrompt("\nPress 'Enter' to exit.");
+			ConsoleInputUtil.readInput();
 		}
 	}
 
@@ -228,8 +227,7 @@ public class BankMain {
 				customer = custService.getCustomerByCredentials(cred);
 				loginSuccessful = true;
 			} catch (BusinessException e) {
-				log.warn(
-						e.getMessage() + "\nLogin attempts remaining: " + (attemptsRemaining - 1));
+				log.warn(e.getMessage() + "\nLogin attempts remaining: " + (attemptsRemaining - 1));
 				attemptsRemaining--;
 			}
 		} while (!loginSuccessful && attemptsRemaining != 0);
@@ -251,10 +249,9 @@ public class BankMain {
 					customerApplyForBankAccount(customer);
 					break;
 
-				case 3: // log.info("Feature coming soon :)");
-
-				default:
-					log.info("Feature coming soon :)");
+				case 3:
+					customer = updatePersonalInfo(customer);
+					break;
 
 				}
 
@@ -406,6 +403,8 @@ public class BankMain {
 		} catch (BusinessException e) {
 			log.warn(e.getMessage());
 		}
+		ConsoleDisplay.displayPrompt("\nPress 'Enter' to exit.");
+		ConsoleInputUtil.readInput();
 	}
 
 	public static BankAccount createNewBankAccount() {
@@ -437,17 +436,82 @@ public class BankMain {
 		} while (!validInput);
 
 		ConsoleDisplay
-				.displayMessage("\n" + "Thank you for setting up an account JDBC Bank. *(^o^)*"
-						+ "\nYour account is in the approval procces. You cannot"
+				.displayMessage("\n" + "Thank you for setting up an account with JDBC Bank. *(^o^)*"
+						+ "\nYour account is in the approval process. You cannot"
 						+ "\nperform transactions on this account.");
-
-		ConsoleDisplay.displayPrompt("\nPress 'Enter' to exit");
-		ConsoleInputUtil.readInput();
-
 		return ba;
 	}
 
-	// TODO insert update user info
+	public static Customer updatePersonalInfo(Customer customer) {
+
+		CustomerService custService = new CustomerServiceImpl();
+
+		Customer updatedCustomer = new Customer();
+		updatedCustomer.setId(customer.getId());
+		updatedCustomer.setDob(customer.getDob());
+		updatedCustomer.setSsn(customer.getSsn());
+		updatedCustomer.setBankAccounts(customer.getBankAccounts());
+
+		boolean exit = false;
+
+		boolean validInput = false;
+		do {
+			ConsoleDisplay.displayHeader("Update Customer Account", "2");
+			ConsoleDisplay.displayMessage("Please enter your details below");
+
+			ConsoleDisplay.displayPrompt("First Name [Current name " + customer.getfName() + "]");
+			updatedCustomer.setfName(ConsoleInputUtil.readInput());
+
+			ConsoleDisplay.displayPrompt("Last Name [Current name " + customer.getlName() + "]");
+			updatedCustomer.setlName(ConsoleInputUtil.readInput());
+
+			ConsoleDisplay.displayPrompt("Email [Current email " + customer.getEmail() + "]");
+			updatedCustomer.setEmail(ConsoleInputUtil.readInput());
+			ConsoleDisplay.displayPrompt(
+					"Contact Number (Format: 10 digits without dashes, splaces or brackets)"
+							+ "\n[Current contact 1" + customer.getContactNum() + "]");
+			updatedCustomer.setContactNum(ConsoleInputUtil.readInput());
+
+			// address data
+			ConsoleDisplay.displayPrompt(
+					"Street Address [Current street address " + customer.getStreetName() + "]");
+			updatedCustomer.setStreetName(ConsoleInputUtil.readInput());
+			ConsoleDisplay.displayPrompt("City [Current city " + customer.getCity() + "]");
+			updatedCustomer.setCity(ConsoleInputUtil.readInput());
+			ConsoleDisplay.displayPrompt(
+					"Zip (Format : 5 digits) [Current ZIP " + customer.getZip() + "]");
+			updatedCustomer.setZip(ConsoleInputUtil.readInput());
+
+			try {
+				validInput = custService.validateCustomerInfo(updatedCustomer);
+
+			} catch (BusinessException e) {
+				log.warn(e.getMessage());
+				log.info("Please try again."
+						+ " \nEnter '[e]' if you want to exit or hit press the 'Enter' key"
+						+ "\non you keyboard to try again");
+				if (ConsoleInputUtil.readInput().equals("[e]")) {
+					exit = true;
+				}
+			}
+		} while (!exit && !validInput);
+
+		if (!exit) {
+			try {
+				if (custService.updateCustomer(updatedCustomer)) {
+					ConsoleDisplay
+							.displayMessage("Your information has been successfuly updated.(^_^)");
+				}
+			} catch (BusinessException e) {
+				log.warn(e.getMessage());
+			}
+			ConsoleDisplay.displayPrompt("Press 'Enter' to continue.");
+			ConsoleInputUtil.readInput();
+			return updatedCustomer;
+		} else {
+			return customer;
+		}
+	}
 
 	public static int displayTransactionScreen(BankAccount account) {
 
@@ -557,7 +621,6 @@ public class BankMain {
 		int transferAcctNum = 0; // stores the account to transfer the money
 		boolean validInput = false; // true if user enters valid input
 		boolean stopDisplayTransferScreen = false;
-		// String inputString;// stores the input from the user
 
 		do {
 
@@ -609,6 +672,9 @@ public class BankMain {
 							+ String.format("%.2f $", transferAmt) + " successful *(^o^)*");
 					stopDisplayTransferScreen = true;
 
+					ConsoleDisplay.displayPrompt("Press 'Enter' to continue.");
+					ConsoleInputUtil.readInput();
+
 				} catch (BusinessException e) {
 
 					/*
@@ -628,8 +694,6 @@ public class BankMain {
 				}
 			}
 		} while (!stopDisplayTransferScreen);
-		ConsoleDisplay.displayPrompt("Press 'Enter' to continue.");
-		ConsoleInputUtil.readInput();
 
 		return account;
 
@@ -654,8 +718,7 @@ public class BankMain {
 				employee = employeeService.getEmployeeByCredentials(cred);
 				loginSuccessful = true;
 			} catch (BusinessException e) {
-				log.warn(
-						e.getMessage() + "\nLogin attempts remaining: " + (attemptsRemaining - 1));
+				log.warn(e.getMessage() + "\nLogin attempts remaining: " + (attemptsRemaining - 1));
 				attemptsRemaining--;
 			}
 

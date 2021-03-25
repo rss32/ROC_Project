@@ -91,7 +91,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		if (!BankAccountValidation.isBalanceGreater(account.getBalance(), withdrawAmt)) {
 			throw new BusinessException(
-					"Not enough money in account to perform trasnaction. Please try again.");
+					"Not enough money in account to perform transaction. Please try again.");
 		}
 		float currentBalance = account.getBalance();
 
@@ -120,7 +120,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		BankAccount destinationAccount = baDAO.getAccountById(transferAcctNum);
 
 		/*
-		 * Step 2 - check if recipient account can recieve transactions. rejected accounts won't be
+		 * Step 2 - check if recipient account can receive transactions. rejected accounts won't be
 		 * able to accept transactions also if the transfer is to the same account do not continue
 		 * with transaction.
 		 */
@@ -135,7 +135,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		if (!BankAccountValidation.isBalanceGreater(sourceAccount.getBalance(), transferAmt)) {
 			throw new BusinessException(
-					"Not enough money in account to perform trasnaction. Please try again.");
+					"Not enough money in account to perform transaction. Please try again.");
 		}
 
 		// Step 4- if everything checks out complete the transfer

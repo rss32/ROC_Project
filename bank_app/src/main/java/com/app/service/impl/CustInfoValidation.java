@@ -1,9 +1,9 @@
 package com.app.service.impl;
 
 public class CustInfoValidation {
-	
+
 	public static boolean isValidCustomerName(String name) {
-		return (name != null && name.matches("[a-zA-Z]{3,35}")) ? true : false;
+		return (name != null && name.matches("^[a-zA-Z]{1}[a-zA-Z-]{2,34}")) ? true : false;
 	}
 
 	public static boolean isTaxIdValid(String ssn) {
@@ -31,6 +31,14 @@ public class CustInfoValidation {
 
 	public static boolean isValidZip(String zip) {
 		return (zip != null && zip.matches("[0-9]{5}")) ? true : false;
+	}
+
+	public static boolean isValidCity(String city) {
+		return (city != null && city.matches("^[A-Za-z]{1,}[ a-zA-Z]{0,}")) ? true : false;
+	}
+
+	public static boolean isValidStreetName(String streetName) {
+		return (streetName != null && streetName.matches("^[0-9A-Za-z]{1,}[ 0-9a-zA-Z]{1,}")) ? true : false;
 	}
 
 }

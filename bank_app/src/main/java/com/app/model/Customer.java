@@ -128,7 +128,4 @@ public class Customer {
 				+ ", zip=" + zip + ", cr=" + cr + ", dob=" + dob
 				+ ", bankAccounts=" + bankAccounts + "]";
 	}
-
-	
-
 }

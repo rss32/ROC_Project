@@ -91,7 +91,6 @@ public class BankAccountDAOImpl implements BankAccountDAO {
 					"E-A02 : Internal Error- Please contact System Administrator" + "\nReason: "
 							+ e.getMessage());
 		}
-
 		return pendingBankAccountList;
 	}
 
@@ -250,11 +249,10 @@ public class BankAccountDAOImpl implements BankAccountDAO {
 			preparedStatement1.setTimestamp(4, new Timestamp(new Date().getTime()));
 			preparedStatement1.setFloat(5, transAmt);
 			update2 = preparedStatement1.executeUpdate();
-			
+
 			conn.commit();
 			conn.close();
-			
-			
+
 		} catch (ClassNotFoundException | SQLException e) {
 			try {
 				conn.rollback();
@@ -285,14 +283,14 @@ public class BankAccountDAOImpl implements BankAccountDAO {
 		try {
 			conn = PostgresConnection.getConnection();
 			conn.setAutoCommit(false);
-			
+
 			// Updating the 'account' table.
 			// Step 1 -Updating the acct of the transferor.
 			String sql = "update bank_schema.account set balance = ? where accountid = ? ";
 			PreparedStatement preparedStatement = conn.prepareStatement(sql);
 
 			preparedStatement.setFloat(1, sourceAccount.getBalance());
-			preparedStatement.setInt(2, sourceAccount.getAccountId());			
+			preparedStatement.setInt(2, sourceAccount.getAccountId());
 			update1 = preparedStatement.executeUpdate();
 
 			// Step 2 -Updating the acct of the transferee.
@@ -380,7 +378,7 @@ public class BankAccountDAOImpl implements BankAccountDAO {
 		} catch (ClassNotFoundException | SQLException e) {
 
 			throw new BusinessException(
-					"E-A08 : Internal Error- Please contact System Administrator" + "\nReason:: "
+					"E-A08 : Internal Error- Please contact System Administrator" + "\nReason: "
 							+ e.getMessage());
 		}
 		return update;
@@ -390,27 +388,58 @@ public class BankAccountDAOImpl implements BankAccountDAO {
 	public int createAccountRecord(BankAccount newAccount) throws BusinessException {
 
 		int update = 0;
+		Connection conn = null;
 
-		try (Connection conn = PostgresConnection.getConnection()) {
-			String sql3 = "insert into bank_schema.account (customerid, accounttypeid, statusid, balance, "
+		try {
+			conn = PostgresConnection.getConnection();
+			conn.setAutoCommit(false);
+
+			// accounts table
+			String sql = "insert into bank_schema.account (customerid, accounttypeid, statusid, balance, "
 					+ "opendate) values(?,"
 					+ "(select accounttypeid from bank_schema.accounttype where type = ?), "
-					+ "(select statusid from bank_schema.accountstatus where status =?)," + "?,?) ";
-			PreparedStatement preparedStatement = conn.prepareStatement(sql3);
+					+ "(select statusid from bank_schema.accountstatus where status =?),"
+					+ "?,?) returning accountid";
+
+			PreparedStatement preparedStatement = conn.prepareStatement(sql);
 			preparedStatement.setInt(1, newAccount.getCustomerId());
 			preparedStatement.setString(2, newAccount.getAcctType());
 			preparedStatement.setString(3, newAccount.getStatus());
 			preparedStatement.setFloat(4, newAccount.getBalance());
 			preparedStatement.setDate(5, new java.sql.Date(newAccount.getOpeningDate().getTime()));
-			update = preparedStatement.executeUpdate();
-			
 
+			ResultSet results = preparedStatement.executeQuery();
+			results.next();
+			int accountid = results.getInt("accountid");
+
+			// transactions table
+			sql = "insert into bank_schema.transactions"
+					+ "(accountid, transactiontypeid, destinationaccount,transactiondate, amount) "
+					+ "values(?,1,?, ?,?) ";
+			PreparedStatement preparedStatement2 = conn.prepareStatement(sql);
+
+			preparedStatement2.setInt(1, accountid);
+			preparedStatement2.setInt(2, accountid);
+			preparedStatement2.setTimestamp(3, new Timestamp(new Date().getTime()));
+			preparedStatement2.setFloat(4, newAccount.getBalance());
+			update = preparedStatement2.executeUpdate();
+
+			conn.commit();
+			conn.close();
 		} catch (ClassNotFoundException | SQLException e) {
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+
+				throw new BusinessException(
+						"E-A09 : Internal Error- Please contact System Administrator" + "\nReason: "
+								+ e1.getMessage());
+			}
 
 			throw new BusinessException(
 					"E-A09 : Internal Error- Please contact System Administrator" + "\nReason: "
 							+ e.getMessage());
 		}
 		return update;
-	}	
+	}
 }

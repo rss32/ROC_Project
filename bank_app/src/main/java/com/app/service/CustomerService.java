@@ -16,4 +16,6 @@ public interface CustomerService {
 
 	public boolean createCustomer(Customer c) throws BusinessException;
 
+	public boolean updateCustomer(Customer c) throws BusinessException;
+
 }

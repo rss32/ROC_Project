@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class CustInfoValidationTest {
-
 	
 	@Test
 	void testIsValidCustomerNameForNamesWithNumbers() {
@@ -16,7 +15,6 @@ class CustInfoValidationTest {
 	void testIsValidCustomerNameWithThreeLetters() {
 		assertEquals(true,CustInfoValidation.isValidCustomerName("abc"));
 	}
-
 
 	@Test
 	void testIsTaxIdValidWithoutSpaces() {
@@ -77,12 +75,29 @@ class CustInfoValidationTest {
 	void testIsValidZipWithThreeNumbers() {
 		assertEquals(false, CustInfoValidation.isValidZip("125"));
 	}
+	
 	@Test
 	void testIsValidZipWithOneLetters() {
 		assertEquals(false, CustInfoValidation.isValidZip("1251L2"));
 	}
+	
 	@Test
 	void testIsValidZipWithFiveDigits() {
 		assertEquals(true, CustInfoValidation.isValidZip("12345"));
+	}
+	
+	@Test
+	void testIsValidCityWithSpaces() {
+		assertEquals(true, CustInfoValidation.isValidCity("New York City"));
+	}
+	
+	@Test
+	void testIsValidStreetNameRegularStreetName() {
+		assertEquals(true, CustInfoValidation.isValidStreetName("123 Pine Street"));
+	}
+	
+	@Test
+	void testIsValidStreetNameNoStreetNumber() {
+		assertEquals(true, CustInfoValidation.isValidStreetName("Pine Street"));
 	}
 }
